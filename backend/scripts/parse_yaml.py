@@ -31,9 +31,17 @@ def parse_match(filepath):
         team = inning_data["team"]
 
         for ball_entry in inning_data["deliveries"]:
-            ball_key = list(ball_entry.keys())[0]  # e.g. "0.1"
+            ball_key = list(ball_entry.keys())[0]
             ball_data = ball_entry[ball_key]
-            over_num, ball_num = ball_key.split(".")
+
+            # Use actual_delivery (a quoted string) instead of the dict key,
+            # since the key gets parsed as an unreliable float by YAML
+            actual = ball_data.get("actual_delivery")
+            if actual is not None:
+                over_num, ball_num = str(actual).split(".")
+            else:
+                # fallback if actual_delivery is missing in some files
+                over_num, ball_num = str(ball_key).split(".")
 
             deliveries.append({
                 "match_id": match_id,
